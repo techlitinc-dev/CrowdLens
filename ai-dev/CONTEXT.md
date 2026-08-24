@@ -6,7 +6,7 @@ CrowdLens: real cited opinion data in → grounded multi-agent simulation → ve
 seed doc → GROUNDING (real cited data) → persona panel → SIMULATION (variants, ensemble) → VERDICT
 ```
 
-Full spec: `../CrowdLens_PBR.md` · features: `../features.md` · stories: `../user-stories.md` — read only when a task says so.
+Full spec: `../readme.md` (PBR) · features: `../features.md` · stories: `../user-stories.md` — read only when a task says so.
 
 ## Principles (bind all code)
 1. Grounded or nothing — no sim without verified grounding.

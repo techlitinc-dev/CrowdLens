@@ -1,6 +1,6 @@
 # CrowdLens — Feature Catalog
 
-**Version:** 0.1 (Draft) · **Date:** 2026-08-25 · **Companion to:** CrowdLens_PBR.md v0.1, user-stories.md v0.1
+**Version:** 0.1 (Draft) · **Date:** 2026-08-25 · **Companion to:** readme.md (PBR) v0.1, user-stories.md v0.1
 
 The complete feature list, consolidated from PBR §5 and §7. IDs are stable — stories (user-stories.md), roadmap milestones (PBR §13), and cost config (PBR §11.1) all reference them.
 

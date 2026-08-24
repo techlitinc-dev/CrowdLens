@@ -1,6 +1,6 @@
 # CrowdLens — User Stories
 
-**Version:** 0.1 (Draft) · **Date:** 2026-08-25 · **Companion to:** CrowdLens_PBR.md v0.1
+**Version:** 0.1 (Draft) · **Date:** 2026-08-25 · **Companion to:** readme.md (PBR) v0.1
 
 Stories are grouped into 7 epics. Every story maps to feature IDs in PBR §7 and auth requirements in PBR §5. Story IDs follow `US-<epic>.<n>`.
 
