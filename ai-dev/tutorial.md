@@ -69,7 +69,7 @@ Rough, honest numbers for phases 0–3 (~20 task sessions):
 
 | Component | Estimate | Cost @ Flash |
 |---|---|---|
-| Stable prefix (CONTEXT+RULES+AGENTS, ~12K tokens × 20 sessions × cache reads) | ~240K cached input | ~$0.01 |
+| Stable prefix (CONTEXT+RULES+AGENTS, ~6K tokens — slimmed for exactly this — × 20 sessions × cache reads) | ~120K cached input | ~$0.01 |
 | Repo context reads, tool output, history (the real input bulk, mostly cache-hitting) | ~15M input, ~80% cached | ~$0.45 |
 | Generated code + tests (output) | ~3M output | ~$0.84 |
 | 2 crown-jewel reviews on `deepseek-v4-pro` (thinking) | ~0.5M in / 0.3M out | ~$0.45 |

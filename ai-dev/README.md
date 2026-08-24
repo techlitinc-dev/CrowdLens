@@ -29,6 +29,7 @@ ai-dev/
 │   ├── phase-7-monitoring-bi.md← schedules, shift alerts, dashboards, public API
 │   └── phase-8-production-hardening.md← Temporal, prod deploy, DR, security, SSO, on-prem
 ├── prompts/
+│   ├── prompt-template-use-this.md ← THE copy-paste template (start here)
 │   └── session-prompts.md     ← copy-paste prompts, one per task
 └── manual-tests/              ← human verification checklists per phase
     ├── README.md              ← how to run and record manual tests
