@@ -486,4 +486,4 @@ Three adjacent categories, none of which does the full ground → simulate → v
 
 ---
 
-*End of PBR v0.1 — companion artifacts: user-stories.md (story set), features.md (feature catalog), ai-dev/ (build kit: contracts, phased instructions, manual tests). Next artifacts: UX wireframes, accuracy methodology spec, GTM plan.*
+*End of PBR v0.1 — companion artifacts: user-stories.md (story set), features.md (feature catalog), accuracy-methodology.md, gtm.md, architecture.md, ai-dev/ (build kit: contracts, phased instructions, manual tests). Next artifact: UX wireframes.*
