@@ -31,6 +31,21 @@ Traditional market research is slow (weeks), expensive ($10K–$100K), and stati
 4. **Confidence, not theater** — the product visibly admits uncertainty; no fake precision (no invented CTRs, vote shares, revenue numbers).
 5. **Global by design, India-native in depth** — multilingual data, tier-2/3 India coverage as a differentiator.
 
+### 2.1 Grounding minimums
+
+"Grounded or nothing" needs teeth. A project may not enter simulation until its grounding corpus clears hard minimums. Defaults below; vertical templates (F-22) may raise them, never lower them.
+
+| Minimum | Default | Checked |
+|---|---|---|
+| Items per active source | ≥ 100 qualifying items per platform (post-dedup, post-language-filter) | Per collector, at grounding completion |
+| Sources per project | ≥ 2 independent platforms contributing qualifying items | Grounding Console |
+| Language coverage | Every declared audience language has ≥ 1 contributing source; otherwise the gap is disclosed on the verdict report | Grounding Console + report header |
+| Freshness | Corpus covers the project's declared time window; stale-window re-runs require re-grounding | F-16/F-17 monitoring |
+
+**INSUFFICIENT_GROUNDING flow.** If minimums are not met, the project enters the `INSUFFICIENT_GROUNDING` state: simulation and branching endpoints refuse to run, and the UI offers exactly four paths — (1) extend the time window, (2) add sources, (3) upload client data (private-data fusion, below), or (4) stop at the baseline sentiment report (F-04), which is always delivered with a coverage-gap disclosure. There is no "run anyway" button. This is the product principle made mechanical, not a warning banner.
+
+**Niche-B2B policy (private-data fusion path).** Some decisions have a real but thin public surface (industrial components, enterprise software, regulated verticals). For these, the minimums can be met by fusing client-uploaded private data — CRM notes, support tickets, survey responses (F-23), WhatsApp Business exports — with whatever public data exists. Rules: the report header discloses the public/private source mix; private items are citable inside the owning workspace only and never appear in shared/exported reports without explicit per-item release; private uploads inherit the workspace's retention and deletion rules (§11.2). If even fused data can't reach minimums, the honest answer is a baseline report plus a recommendation to run primary research — CrowdLens does not simulate on air.
+
 ---
 
 ## 3. Target Personas
@@ -368,6 +383,36 @@ The default config is engineered for cheapest-accurate: the crowd runs on the ch
 
 Expected simulation-layer cost at this config: **~$2–3 per decision cycle** (single run ~$0.10–0.15), leaving most of the $25 budget for grounding and report generation. Any further cuts require validation-corpus evidence (F-18) that theme-level accuracy holds.
 
+### 11.2 Data Lifecycle & Retention
+
+Retention is per data class, enforced by scheduled jobs (Temporal), and auditable. Rule of thumb: **keep the evidence, expire the exhaust** — raw text ages out; derived aggregates and verdicts live with the project.
+
+| Data class | Where | Retention | On project delete |
+|---|---|---|---|
+| Raw collected posts (text) | PostgreSQL `collected_items` | 90 days from collection, then text purged | Hard-deleted immediately |
+| Aggregates, embeddings, entity stats | PostgreSQL / Neo4j | Project lifetime | Hard-deleted with project graph |
+| Persona panels (derived, anonymized) | PostgreSQL | Project lifetime | Hard-deleted |
+| Simulation artifacts (runs, agent states, timelines) | MinIO + PostgreSQL | Project lifetime | Hard-deleted |
+| Reports & report blocks | PostgreSQL + MinIO exports | Project lifetime; share links expire ≤ 30 days (enforced at creation) | Hard-deleted; share links revoked |
+| Client-uploaded private data (§2.1) | PostgreSQL + MinIO | Project lifetime, or earlier per client instruction | Hard-deleted first, before public data |
+| Audit logs (access, exports) | PostgreSQL | 12 months minimum (Enterprise); retained post-churn in workspace-anonymized form | Survives churn, anonymized |
+| LLM traces (Langfuse) | Langfuse | 90 days, then purged; no raw PII enters traces | Purged with workspace |
+| Backups | Encrypted snapshots | 30-day rotation | Data ages out of backups within 30 days; no restore-on-demand for churned workspaces |
+
+**Deletion-on-churn flow.** Workspace closure triggers: (1) 30-day grace period — read-only, full export available, no new jobs; (2) hard delete — cascade through PostgreSQL (workspace → projects → all child rows, per DDL), purge MinIO buckets, drop Neo4j project graphs, revoke LiteLLM virtual keys, delete Lago/Novu tenant config; (3) backups rotate out within 30 days; (4) Enterprise customers receive a signed deletion certificate listing what was destroyed and what survives (anonymized audit logs only). No soft-delete shadow copies.
+
+**DPDP / GDPR mapping.**
+
+| Obligation | How CrowdLens meets it |
+|---|---|
+| No platform-user PII | Handles, avatars, profile links stripped at ingestion (verified in collector tests); platform users are never data principals in our stores |
+| Data minimization | Per-class retention above; raw text expires, only aggregates persist |
+| Purpose limitation | Client data used only for the project it was uploaded to; no cross-tenant reuse (F-45 benchmarks are opt-in and aggregate-only) |
+| Right to erasure | Churn flow above; client instructs → we delete, certificate issued |
+| Consent / legitimate use | Public posts processed under legitimate-interest (GDPR) / publicly-available-data provisions; private uploads under the client's own lawful basis |
+| DPDP specifics | Grievance officer designated; breach notification to Data Protection Board + affected clients; no transfer to GoI-blacklisted jurisdictions |
+| GDPR specifics | DPA offered to EU clients; EU-region storage pinning available on Enterprise; SCCs for any cross-border processing |
+
 ---
 
 ## 12. User Story Traceability
@@ -413,6 +458,22 @@ Epics 1–7 from the story set map to features: Project Setup (F-01/02), Groundi
 | India data gaps (WhatsApp dark, ShareChat no API) | Disclosed coverage maps per report; client-data fusion; never oversell |
 | Platform ToS shifts | Official/licensed sources first; provider abstraction per collector |
 | Legal (elections, defamation) | Vertical guardrails in product; §126A publishing lock; advisory-only positioning |
+
+---
+
+## Competitive Landscape
+
+*(Inserted in the v0.1 draft between §15 and §16. Section numbering is frozen for this draft — existing §16 stays §16; this section takes a number at the next version bump.)*
+
+Three adjacent categories, none of which does the full ground → simulate → verdict loop:
+
+| Category (examples) | What it does | Where it stops | What CrowdLens does differently | Honest CrowdLens weaknesses |
+|---|---|---|---|---|
+| **Synthetic-audience / AI-persona tools** (synthetic-respondent startups, LLM "digital twin" panels) | Ask LLM-generated personas for reactions; instant, cheap | Personas come from model priors, not live cited data; no proof the panel matches a real public; answers unverifiable | Persona panel is built from real, cited posts (F-05); every agent stance traceable to grounding data; ensemble + convergence before any verdict (§11.1) | Slower (grounding ≤ 30 min before anything runs) and dearer than a pure-LLM chat; accuracy still being proven against the validation corpus (F-18) |
+| **Social listening incumbents** (Brandwatch, Sprinklr, Talkwalker, Meltwater) | Real-time monitoring of public conversation, dashboards, alerts | Backward-looking: tells you what the crowd said, never what it *will* say to a decision you haven't made | Same real-data spine, plus counterfactual simulation of decision variants (F-06) and convergence-scored verdicts (F-09) | Their data volume, historical archives, and brand trust dwarf ours; our coverage has disclosed gaps (WhatsApp dark, ShareChat no API — §9.2) |
+| **Traditional research** (Nielsen/Kantar panels, Qualtrics surveys, focus groups) | Verified-demographic human respondents; the methodological gold standard | Weeks and $10K–$100K per study; static snapshot; can't iterate 5 variants overnight | Same-day verdict at ≤ $25 (§16); decisions testable before money is spent; verdicts re-runnable as data refreshes (F-17) | No verified demographics — we predict themes and direction, not statistically representative magnitudes (§1); we are a complement to, not a replacement for, a real panel on high-stakes calls |
+
+**Positioning in one line:** the incumbents own *what happened*, the synthetic tools sell *unverified what's next* — CrowdLens sells *grounded what's next*, and publishes its accuracy to prove it (F-18).
 
 ---
 
